@@ -1,63 +1,157 @@
-import { Html, OrbitControls } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
-import { useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, Stars } from "@react-three/drei";
+import { useMemo, useRef } from "react";
 import * as THREE from "three";
 
-export default function SolarSystem3D({ onSelect }: { onSelect: (slug: string) => void }) {
-  const { camera } = useThree();
+type Entity = {
+  slug: string;
+  title: string;
+  heroColor: string;
+  tags?: string[];
+  facts?: { radius_km?: number };
+};
 
-  function flyTo(target: THREE.Vector3, radius: number) {
-    const start = camera.position.clone();
-    const dest = target.clone().add(new THREE.Vector3(radius * 18, radius * 8, radius * 18));
-    let t = 0;
-    const dur = 0.9;
-    function step() {
-      t += 1 / 60;
-      const k = Math.min(1, t / dur);
-      camera.position.lerpVectors(start, dest, k * (2 - k));
-      camera.lookAt(target);
-      if (k < 1) requestAnimationFrame(step);
+type Props = {
+  entities: Entity[];
+  onSelect: (slug: string) => void;
+  onExit: () => void;
+};
+
+const KM_TO_UNITS = 1 / 50000; // crude scale; tweak as needed
+const DEFAULTS: Record<string, { color: string; distAU: number; radiusKm: number }> = {
+  sun:      { color: "#ffdd55", distAU: 0,     radiusKm: 696340 },
+  mercury:  { color: "#9ca3af", distAU: 0.39,  radiusKm: 2439.7 },
+  venus:    { color: "#ffd166", distAU: 0.72,  radiusKm: 6051.8 },
+  earth:    { color: "#6ee7b7", distAU: 1.0,   radiusKm: 6371 },
+  moon:     { color: "#e5e7eb", distAU: 1.0026, radiusKm: 1737.4 }, // near Earth
+  mars:     { color: "#ff6b6b", distAU: 1.52,  radiusKm: 3389.5 },
+  jupiter:  { color: "#fca5a5", distAU: 5.2,   radiusKm: 69911 },
+  saturn:   { color: "#fde68a", distAU: 9.58,  radiusKm: 58232 },
+  uranus:   { color: "#93c5fd", distAU: 19.2,  radiusKm: 25362 },
+  neptune:  { color: "#4ea8de", distAU: 30.1,  radiusKm: 24622 },
+  pluto:    { color: "#a78bfa", distAU: 39.5,  radiusKm: 1188.3 },
+  europa:   { color: "#7dd3fc", distAU: 5.2,   radiusKm: 1560.8 },
+  titan:    { color: "#f5a524", distAU: 9.58,  radiusKm: 2574.7 }
+};
+
+// simple ring (orbit) geometry
+function Orbit({ radius }: { radius: number }) {
+  const ring = useMemo(() => {
+    const curve = new THREE.EllipseCurve(0, 0, radius, radius, 0, Math.PI * 2, false, 0);
+    const points = curve.getPoints(256).map(p => new THREE.Vector3(p.x, 0, p.y));
+    const geo = new THREE.BufferGeometry().setFromPoints(points);
+    return geo;
+  }, [radius]);
+  return (
+    <line>
+      <bufferGeometry attach="geometry" {...(ring as any)} />
+      <lineBasicMaterial attach="material" linewidth={1} color="white" opacity={0.15} transparent />
+    </line>
+  );
+}
+
+function Planet({
+  slug,
+  color,
+  distance,
+  radius,
+  onClick
+}: {
+  slug: string;
+  color: string;
+  distance: number; // in scene units
+  radius: number;   // in scene units
+  onClick: (slug: string) => void;
+}) {
+  const ref = useRef<THREE.Mesh>(null!);
+  useFrame((_, delta) => {
+    // gentle self-rotation
+    if (ref.current) ref.current.rotation.y += delta * 0.1;
+  });
+  return (
+    <group position={[distance, 0, 0]}>
+      <mesh
+        ref={ref}
+        onClick={(e) => { e.stopPropagation(); onClick(slug); }}
+        onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
+        onPointerOut={() => { document.body.style.cursor = "default"; }}
+      >
+        <sphereGeometry args={[radius, 32, 32]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.05} metalness={0.1} roughness={0.8} />
+      </mesh>
+    </group>
+  );
+}
+
+export default function SolarSystem3D({ entities, onSelect, onExit }: Props) {
+  // Build objects for any entity we recognize; unknowns get a safe default
+  const planets = useMemo(() => {
+    const seen = new Set<string>();
+    const list: {
+      slug: string;
+      color: string;
+      dist: number;   // scene units
+      radius: number; // scene units
+    }[] = [];
+
+    // Always include the Sun for lighting reference
+    list.push({
+      slug: "sun",
+      color: DEFAULTS.sun.color,
+      dist: 0,
+      radius: DEFAULTS.sun.radiusKm * KM_TO_UNITS * 0.2 // scaled down a lot to keep scene manageable
+    });
+
+    for (const e of entities) {
+      const slug = e.slug.toLowerCase();
+      if (seen.has(slug)) continue;
+      const base = DEFAULTS[slug] ?? { color: e.heroColor || "#ffffff", distAU: 5, radiusKm: e.facts?.radius_km ?? 3000 };
+      seen.add(slug);
+      list.push({
+        slug,
+        color: base.color,
+        dist: base.distAU * 10, // AU → scene units (10 units per AU)
+        radius: Math.max(0.4, (base.radiusKm * KM_TO_UNITS)) // clamp so tiny moons are still clickable
+      });
     }
-    requestAnimationFrame(step);
-  }
-
-  function Planet({ slug, color, radius, dist }: { slug: string; color: string; radius: number; dist: number }) {
-    const pos = new THREE.Vector3(dist, 0, 0);
-    const meshRef = useRef<THREE.Mesh>(null!);
-    return (
-      <group position={pos.toArray()}>
-        <mesh
-          ref={meshRef}
-          onClick={(e) => {
-            e.stopPropagation();
-            flyTo(pos, radius);
-            onSelect(slug);
-          }}
-        >
-          <sphereGeometry args={[Math.max(0.45, radius), 32, 32]} />
-          <meshStandardMaterial color={color} />
-        </mesh>
-        <Html center position={[0, radius + 0.8, 0]} style={{ pointerEvents: "none" }}>
-          <div className="rounded bg-black/60 px-2 py-0.5 text-[10px] text-white">{slug}</div>
-        </Html>
-      </group>
-    );
-  }
+    return list.sort((a, b) => a.dist - b.dist);
+  }, [entities]);
 
   return (
-    <>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[8, 8, 5]} intensity={1} />
-      <Planet slug="mercury" color="#9ca3af" radius={0.6} dist={6} />
-      <Planet slug="venus" color="#ffd166" radius={0.9} dist={8.5} />
-      <Planet slug="earth" color="#6ee7b7" radius={1.0} dist={11} />
-      <Planet slug="moon" color="#e5e7eb" radius={0.35} dist={12} />
-      <Planet slug="mars" color="#ff6b6b" radius={0.8} dist={13.5} />
-      <Planet slug="jupiter" color="#fca5a5" radius={2.5} dist={18} />
-      <Planet slug="saturn" color="#fde68a" radius={2.1} dist={22} />
-      <Planet slug="uranus" color="#93c5fd" radius={1.6} dist={25} />
-      <Planet slug="neptune" color="#4ea8de" radius={1.6} dist={28} />
-      <OrbitControls enablePan={false} />
-    </>
+    <div className="absolute inset-0 z-30">
+      {/* overlay controls */}
+      <div className="pointer-events-auto absolute left-4 top-4 z-40">
+        <div className="glass rounded-lg px-3 py-2 text-xs">
+          <div className="font-semibold">Interactive Mode</div>
+          <div className="opacity-80 mt-1">Drag to orbit • Scroll to zoom • Click a body to open</div>
+          <button className="mt-2 glass rounded px-2 py-1" onClick={onExit}>Exit</button>
+        </div>
+      </div>
+
+      <Canvas camera={{ position: [0, 25, 60], fov: 55 }}>
+        {/* background stars */}
+        <Stars radius={300} depth={60} count={8000} factor={4} saturation={0} fade />
+
+        {/* lighting */}
+        <ambientLight intensity={0.15} />
+        <pointLight position={[0, 0, 0]} intensity={2.2} color={"#fff4c2"} />
+
+        {/* sun sphere (emissive) */}
+        <mesh>
+          <sphereGeometry args={[planets[0].radius, 64, 64]} />
+          <meshBasicMaterial color={DEFAULTS.sun.color} />
+        </mesh>
+
+        {/* Orbits & Planets */}
+        {planets.slice(1).map((p) => (
+          <group key={p.slug}>
+            <Orbit radius={p.dist} />
+            <Planet slug={p.slug} color={p.color} distance={p.dist} radius={p.radius} onClick={onSelect} />
+          </group>
+        ))}
+
+        <OrbitControls enableDamping dampingFactor={0.08} rotateSpeed={0.6} zoomSpeed={0.6} />
+      </Canvas>
+    </div>
   );
 }
