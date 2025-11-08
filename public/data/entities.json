@@ -1,0 +1,146 @@
+[
+  {
+  "slug": "mercury",
+  "title": "Mercury",
+  "tags": ["planet", "rocky", "innermost", "extreme temperatures"],
+  "heroColor": "#9ca3af",
+  "facts": { "radius_km": 2439.7, "gravity_g": 0.38, "orbital_period_days": 87.97 },
+  "sections": [
+    { "title": "Overview", "md": "The smallest and innermost planet, Mercury endures scorching days and freezing nights with virtually no atmosphere to trap heat." },
+    { "title": "Missions", "md": "NASA's MESSENGER orbited Mercury from 2011 to 2015, revealing a cratered surface and clues about its magnetic field; ESA's BepiColombo will arrive in 2025." }
+  ],
+  "sources": ["https://solarsystem.nasa.gov/planets/mercury/overview/"]
+  },
+  {
+    "slug": "venus",
+    "title": "Venus",
+    "tags": ["planet", "rocky", "greenhouse"],
+    "heroColor": "#ffd166",
+    "facts": { "radius_km": 6051.8, "gravity_g": 0.904, "orbital_period_days": 224.7 },
+    "sections": [
+      { "title": "Overview", "md": "A runaway-greenhouse world shrouded in sulfuric acid clouds. Surface pressures crush and temperatures melt lead, yet the geology hints at active processes." },
+      { "title": "Missions", "md": "Magellan mapped the surface by radar; upcoming missions like DAVINCI and VERITAS aim to probe atmosphere, composition, and tectonics." }
+    ],
+    "sources": ["https://solarsystem.nasa.gov/planets/venus/overview/"]
+  },
+  {
+  "slug": "earth",
+  "title": "Earth",
+  "tags": ["planet", "habitable", "water", "life"],
+  "heroColor": "#6ee7b7",
+  "facts": { "radius_km": 6371, "gravity_g": 1.0, "orbital_period_days": 365.25 },
+  "sections": [
+    { "title": "Overview", "md": "Our home planet, rich with oceans, atmosphere, and life. Earth's magnetic field and moderate climate make it unique among known worlds." },
+    { "title": "Missions", "md": "From Apollo to Artemis, human and robotic missions continue to study our planet from orbit and beyond, monitoring its climate and ecosystems." }
+  ],
+  "sources": ["https://solarsystem.nasa.gov/planets/earth/overview/"]
+  },
+  {
+    "slug": "mars",
+    "title": "Mars",
+    "tags": ["planet", "rocky", "dust storms"],
+    "heroColor": "#ff6b6b",
+    "facts": { "radius_km": 3389.5, "gravity_g": 0.376, "orbital_period_days": 686.98 },
+    "sections": [
+      { "title": "Overview", "md": "The Red Planet preserves ancient river valleys and polar ice caps. Today it's cold and dry, but its rocks record a wetter, potentially habitable past." },
+      { "title": "Missions", "md": "Perseverance and Curiosity explore habitability and collect samples; orbiters like MAVEN study atmosphere loss and climate history." }
+    ],
+    "sources": ["https://solarsystem.nasa.gov/planets/mars/overview/"]
+  },
+  {
+  "slug": "jupiter",
+  "title": "Jupiter",
+  "tags": ["planet", "gas giant", "storms", "moons"],
+  "heroColor": "#fca5a5",
+  "facts": { "radius_km": 69911, "gravity_g": 2.53, "orbital_period_days": 4332.59 },
+  "sections": [
+    { "title": "Overview", "md": "The largest planet in the Solar System, Jupiter is a gas giant with swirling storms and over 90 moons, including Europa, Ganymede, and Io." },
+    { "title": "Missions", "md": "NASA's Juno continues to study Jupiter’s atmosphere and magnetosphere; ESA’s JUICE mission will explore its icy moons." }
+  ],
+  "sources": ["https://solarsystem.nasa.gov/planets/jupiter/overview/"]
+  },
+  {
+  "slug": "saturn",
+  "title": "Saturn",
+  "tags": ["planet", "gas giant", "rings", "moons"],
+  "heroColor": "#fde68a",
+  "facts": { "radius_km": 58232, "gravity_g": 1.07, "orbital_period_days": 10759 },
+  "sections": [
+    { "title": "Overview", "md": "A majestic gas giant adorned with spectacular rings made of ice and rock, Saturn is a world of deep winds and dozens of moons." },
+    { "title": "Missions", "md": "Cassini’s 13-year mission revealed Saturn’s intricate ring structure and the potential habitability of its moon Enceladus." }
+  ],
+  "sources": ["https://solarsystem.nasa.gov/planets/saturn/overview/"]
+  },
+  {
+  "slug": "uranus",
+  "title": "Uranus",
+  "tags": ["planet", "ice giant", "tilted", "cold"],
+  "heroColor": "#93c5fd",
+  "facts": { "radius_km": 25362, "gravity_g": 0.89, "orbital_period_days": 30688.5 },
+  "sections": [
+    { "title": "Overview", "md": "An ice giant tipped on its side, Uranus experiences extreme seasons and a pale blue hue from methane in its atmosphere." },
+    { "title": "Missions", "md": "Voyager 2’s 1986 flyby remains our only close encounter; future missions aim to study its rings and atmospheric dynamics." }
+  ],
+  "sources": ["https://solarsystem.nasa.gov/planets/uranus/overview/"]
+  },
+  {
+    "slug": "neptune",
+    "title": "Neptune",
+    "tags": ["planet", "ice giant", "winds"],
+    "heroColor": "#4ea8de",
+    "facts": { "radius_km": 24622, "gravity_g": 1.14, "orbital_period_days": 60190 },
+    "sections": [
+      { "title": "Overview", "md": "A deep-blue ice giant with supersonic winds and evolving storms at the fringes of the solar system." },
+      { "title": "Missions", "md": "Voyager 2 (1989) remains our only flyby; modern telescopes continue to track weather and seasonal changes." }
+    ],
+    "sources": ["https://solarsystem.nasa.gov/planets/neptune/overview/"]
+  },
+  {
+    "slug": "pluto",
+    "title": "Pluto",
+    "tags": ["dwarf-planet", "kuiper-belt", "ice"],
+    "heroColor": "#a78bfa",
+    "facts": { "radius_km": 1188.3, "gravity_g": 0.063, "orbital_period_days": 90560 },
+    "sections": [
+      { "title": "Overview", "md": "A distant dwarf planet with complex geology and a famous heart-shaped plain, Tombaugh Regio, sculpted by nitrogen and carbon monoxide ices." },
+      { "title": "Missions", "md": "New Horizons (2015) transformed Pluto from a point of light into a dynamic world with mountains, glaciers, and a surprisingly active surface." }
+    ],
+    "sources": ["https://solarsystem.nasa.gov/planets/dwarf-planets/pluto/overview/"]
+  },
+  {
+  "slug": "moon",
+  "title": "The Moon",
+  "tags": ["moon", "earth", "satellite", "craters"],
+  "heroColor": "#e5e7eb",
+  "facts": { "radius_km": 1737.4, "gravity_g": 0.165, "orbital_period_days": 27.32 },
+  "sections": [
+    { "title": "Overview", "md": "Earth’s only natural satellite, the Moon has shaped our tides, calendars, and culture for millennia. Its surface is scarred by craters and basins from ancient impacts." },
+    { "title": "Missions", "md": "From the Apollo landings to modern Artemis missions, the Moon remains a key focus for exploration and future habitation." }
+  ],
+  "sources": ["https://solarsystem.nasa.gov/moons/earths-moon/overview/"]
+  },
+  {
+    "slug": "europa",
+    "title": "Europa",
+    "tags": ["moon", "jupiter", "ice", "ocean"],
+    "heroColor": "#7dd3fc",
+    "facts": { "radius_km": 1560.8, "gravity_g": 0.134, "orbital_period_days": 3.55 },
+    "sections": [
+      { "title": "Overview", "md": "An icy moon likely hiding a global subsurface ocean beneath a fractured crust—one of the most promising places to search for life beyond Earth." },
+      { "title": "Missions", "md": "Galileo revealed a young, active surface; NASA's Europa Clipper is en route to probe the ocean, chemistry, and potential habitability." }
+    ],
+    "sources": ["https://solarsystem.nasa.gov/moons/jupiter-moons/europa/overview/"]
+  },
+  {
+    "slug": "titan",
+    "title": "Titan",
+    "tags": ["moon", "saturn", "methane", "atmosphere"],
+    "heroColor": "#f5a524",
+    "facts": { "radius_km": 2574.7, "gravity_g": 0.138, "orbital_period_days": 15.95 },
+    "sections": [
+      { "title": "Overview", "md": "A world with a thick nitrogen atmosphere, methane clouds, and lakes—Earth-like weather cycles with alien chemistry at cryogenic temperatures." },
+      { "title": "Missions", "md": "Cassini–Huygens dropped a lander into Titan’s haze; NASA’s Dragonfly rotorcraft will hop between sites to study prebiotic chemistry." }
+    ],
+    "sources": ["https://solarsystem.nasa.gov/moons/saturn-moons/titan/overview/"]
+  }
+]
