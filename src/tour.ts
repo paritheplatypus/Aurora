@@ -1,4 +1,3 @@
-// src/tour.ts
 import { useCallback, useMemo, useState } from "react";
 import entities from "../public/data/entities.json";
 import { genTourSteps } from "./api/gemini";
@@ -25,17 +24,14 @@ export const useTour = (e?: Entity) => {
   const slug = e?.slug ?? "unknown";
   const contextMD = e?.sections?.[0]?.md ?? "";
 
-  // decide which style/variant to use for THIS visit (round-robin)
+  // choose a variant based on visit count (no repeat on revisit)
   const variantIndex = useMemo(() => {
     const visits = getVisitCount(slug);
-    return visits % STYLES.length; // 0,1,2...
-    // NOTE: bump happens when user clicks "Start"
+    return visits % STYLES.length;
   }, [slug]);
   const style = STYLES[variantIndex];
 
-  const cacheKey = useMemo(
-    () => `aurora:tour:${slug}:v${variantIndex}`, [slug, variantIndex]
-  );
+  const cacheKey = useMemo(() => `aurora:tour:${slug}:v${variantIndex}`, [slug, variantIndex]);
 
   const ensureAIGenerated = useCallback(async () => {
     if (!e) return;
@@ -48,35 +44,43 @@ export const useTour = (e?: Entity) => {
     setSteps(gen);
     localStorage.setItem(cacheKey, JSON.stringify(gen));
 
-    // also keep a rolling list of used facts to reduce repeats across future variants
+    // Track used facts (to reduce repeats across future variants).
     const usedKey = `aurora:usedfacts:${slug}`;
     const used = new Set<string>(JSON.parse(localStorage.getItem(usedKey) || "[]"));
-    gen.forEach(s => used.add(s.toLowerCase()));
-    localStorage.setItem(usedKey, JSON.stringify([...used].slice(-60))); // cap
+    gen.forEach((s) => used.add(s.toLowerCase()));
+    localStorage.setItem(usedKey, JSON.stringify([...used].slice(-60)));
   }, [cacheKey, contextMD, e, slug, style]);
 
-  const narrate = useCallback(async (i: number) => {
-    try {
-      if (i < 0 || i >= steps.length) return;
-      const a = await speak(steps[i]);
-      a.play();
-    } catch { /* silent: offline/rate limits okay */ }
-  }, [steps]);
+  const narrate = useCallback(
+    async (i: number) => {
+      try {
+        if (i < 0 || i >= steps.length) return;
+        const a = await speak(steps[i]);
+        a.play();
+      } catch {
+        /* ignore offline/rate limits */
+      }
+    },
+    [steps]
+  );
 
   const start = useCallback(async () => {
-    bumpVisitCount(slug);                 // mark a new visit → rotates next time
+    bumpVisitCount(slug);
     if (!steps.length) await ensureAIGenerated();
     setActiveStep(0);
     await narrate(0);
   }, [ensureAIGenerated, narrate, steps.length, slug]);
 
-  const next = useCallback(async () => {
-    setActiveStep(prev => {
-      const n = Math.min((prev < 0 ? 0 : prev) + 1, steps.length - 1);
-      narrate(n);
-      return n;
-    });
-  }, [narrate, steps.length]);
+  const next = useCallback(
+    async () => {
+      setActiveStep((prev) => {
+        const n = Math.min((prev < 0 ? 0 : prev) + 1, steps.length - 1);
+        narrate(n);
+        return n;
+      });
+    },
+    [narrate, steps.length]
+  );
 
   const reset = useCallback(() => setActiveStep(-1), []);
 
