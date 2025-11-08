@@ -1,0 +1,92 @@
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect project type
+        id: detect
+        run: |
+          if [ -f "package.json" ]; then
+            echo "type=node" >> $GITHUB_OUTPUT
+          elif [ -f "index.html" ]; then
+            echo "type=static" >> $GITHUB_OUTPUT
+          else
+            echo "type=unknown" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node (if Node project)
+        if: steps.detect.outputs.type == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install deps (if Node project)
+        if: steps.detect.outputs.type == 'node'
+        run: |
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            npm i
+          fi
+
+      - name: Build (if Node project)
+        if: steps.detect.outputs.type == 'node'
+        run: |
+          if npm run | grep -q " build"; then
+            npm run build
+          else
+            echo "::error::No build script found. Add a 'build' script to package.json"
+            exit 1
+          fi
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+
+      - name: Prepare static artifacts
+        id: prep
+        run: |
+          for d in dist build out .next; do
+            if [ -d "$d" ]; then
+              echo "dist=$d" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          done
+          if [ "${{ steps.detect.outputs.type }}" = "static" ]; then
+            echo "dist=." >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "dist=." >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.prep.outputs.dist }}
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
