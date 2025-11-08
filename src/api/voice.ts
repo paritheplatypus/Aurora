@@ -1,7 +1,5 @@
 // src/api/voice.ts
-// Uses Vite env var: VITE_ELEVENLABS_API_KEY
-// Replace VOICE_ID with any public ElevenLabs voice id you like
-const VOICE_ID = "EXAVITQu4vr4xnSDxMaL"; // default sample voice
+const VOICE_ID = "EXAVITQu4vr4xnSDxMaL"; // sample voice id
 
 export async function speak(text: string): Promise<HTMLAudioElement> {
   const key = import.meta.env.VITE_ELEVENLABS_API_KEY;
@@ -23,6 +21,5 @@ export async function speak(text: string): Promise<HTMLAudioElement> {
   if (!r.ok) throw new Error("ElevenLabs TTS failed");
   const blob = await r.blob();
   const url = URL.createObjectURL(blob);
-  const audio = new Audio(url);
-  return audio;
+  return new Audio(url);
 }
